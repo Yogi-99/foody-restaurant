@@ -19,13 +19,20 @@ class RestaurantScreen extends StatefulWidget {
 
 class _RestaurantScreenState extends State<RestaurantScreen> {
   File _image;
-  String _name, _address, _phone, _city;
+  String _name = 'Name',
+      _address = 'Address',
+      _phone = 'Contact Number',
+      _city = 'City',
+      _imageUrl = '';
   DatabaseService _databaseService = DatabaseService();
   User _currentUser;
+  bool _isLoading = false;
+  bool _useImagePicker = false;
 
   @override
   void initState() {
     super.initState();
+    _showRestaurantInfo();
     _currentUser =
         Provider.of<UserProvider>(context, listen: false).currentUser;
   }
@@ -49,6 +56,18 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
     });
   }
 
+  _showRestaurantInfo() {
+    Restaurant restaurant =
+        Provider.of<UserProvider>(context, listen: false).restaurant;
+    if (restaurant != null) {
+      _address = restaurant.address;
+      _city = restaurant.city;
+      _name = restaurant.name;
+      _phone = restaurant.phone;
+      _imageUrl = restaurant.image;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -61,135 +80,165 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
                 Icons.check,
                 size: 30.0,
               ),
-              onPressed: () {
+              onPressed: () async {
+                setState(() {
+                  _isLoading = true;
+                });
+                print('city: $_city');
                 Restaurant restaurant = Restaurant(
                   address: _address,
                   city: _city,
                   name: _name,
                   phone: _phone,
                 );
-                _databaseService.addRestaurantDetails(
+                await _databaseService.addRestaurantDetails(
                     _currentUser, restaurant, _image);
-                showMessage('Data successfully updated.');
+
+                setState(() {
+                  _isLoading = false;
+                });
               })
         ],
       ),
       drawer: NavigationDrawer(),
       body: SingleChildScrollView(
-        child: Column(
+        child: Stack(
           children: <Widget>[
-            Container(
-                height: size.height * 0.35,
-                decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(.2),
-                  image: _image != null
-                      ? DecorationImage(
-                          image: FileImage(_image), fit: BoxFit.cover)
-                      : null,
-                ),
+            Column(
+              children: <Widget>[
+                Container(
+                    height: size.height * 0.35,
+                    decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(.2),
+                        image: Provider.of<UserProvider>(context, listen: false)
+                                        .restaurant !=
+                                    null &&
+                                !_useImagePicker
+                            ? DecorationImage(
+                                image: NetworkImage(_imageUrl),
+                                fit: BoxFit.cover)
+                            : DecorationImage(
+                                image: FileImage(_image), fit: BoxFit.cover)),
+                    child: Center(
+                      child: GestureDetector(
+                          onTap: () {
+                            _useImagePicker = true;
+                            _getImage();
+                          },
+                          child: _image == null || _imageUrl == null
+                              ? Icon(
+                                  Icons.camera_alt,
+                                  size: 100.0,
+                                  color: Colors.grey,
+                                )
+                              : null),
+                    )),
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 30.0, vertical: 20.0),
+                  child: Column(
+                    children: <Widget>[
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4.0),
+                        child: TextField(
+                          keyboardType: TextInputType.text,
+                          onChanged: (value) {
+                            setState(() {
+                              _name = value;
+                            });
+                          },
+                          textInputAction: TextInputAction.next,
+                          onSubmitted: (_) =>
+                              FocusScope.of(context).nextFocus(),
+                          decoration: InputDecoration(
+                              border: OutlineInputBorder(),
+                              labelText: _name,
+                              labelStyle:
+                                  TextStyle(fontSize: 20.0, color: Colors.red),
+                              hintText: 'Restaurants Name ',
+                              hintStyle: TextStyle(
+                                  color: Colors.black.withOpacity(.5))),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4.0),
+                        child: TextField(
+                          keyboardType: TextInputType.number,
+                          onChanged: (value) {
+                            setState(() {
+                              _phone = value;
+                            });
+                          },
+                          textInputAction: TextInputAction.next,
+                          onSubmitted: (_) =>
+                              FocusScope.of(context).nextFocus(),
+                          decoration: InputDecoration(
+                              border: OutlineInputBorder(),
+                              labelText: _phone,
+                              labelStyle:
+                                  TextStyle(fontSize: 20.0, color: Colors.red),
+                              hintText: 'Contact Number',
+                              hintStyle: TextStyle(
+                                  color: Colors.black.withOpacity(.5))),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4.0),
+                        child: TextField(
+                          keyboardType: TextInputType.text,
+                          onChanged: (value) {
+                            setState(() {
+                              _address = value;
+                            });
+                          },
+                          maxLines: 3,
+                          textInputAction: TextInputAction.next,
+                          onSubmitted: (_) =>
+                              FocusScope.of(context).nextFocus(),
+                          decoration: InputDecoration(
+                              border: OutlineInputBorder(),
+                              labelText: _address,
+                              labelStyle:
+                                  TextStyle(fontSize: 20.0, color: Colors.red),
+                              hintText: 'Address',
+                              hintStyle: TextStyle(
+                                  color: Colors.black.withOpacity(.5))),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4.0),
+                        child: TextField(
+                          keyboardType: TextInputType.text,
+                          onChanged: (value) {
+                            setState(() {
+                              _city = value;
+                            });
+                          },
+                          textInputAction: TextInputAction.done,
+                          decoration: InputDecoration(
+                              border: OutlineInputBorder(),
+                              labelText: _city,
+                              labelStyle:
+                                  TextStyle(fontSize: 20.0, color: Colors.red),
+                              hintText: 'City',
+                              hintStyle: TextStyle(
+                                  color: Colors.black.withOpacity(.5))),
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              ],
+            ),
+            Positioned(
+              top: 0.0,
+              bottom: 0.0,
+              left: 0.0,
+              right: 0.0,
+              child: Container(
                 child: Center(
-                  child: GestureDetector(
-                      onTap: () {
-                        _getImage();
-                      },
-                      child: _image == null
-                          ? Icon(
-                              Icons.camera_alt,
-                              size: 100.0,
-                              color: Colors.grey,
-                            )
-                          : null),
-                )),
-            Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 30.0, vertical: 20.0),
-              child: Column(
-                children: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 4.0),
-                    child: TextField(
-                      keyboardType: TextInputType.text,
-                      onChanged: (value) {
-                        setState(() {
-                          _name = value;
-                        });
-                      },
-                      textInputAction: TextInputAction.next,
-                      onSubmitted: (_) => FocusScope.of(context).nextFocus(),
-                      decoration: InputDecoration(
-                          border: OutlineInputBorder(),
-                          labelText: 'Restaurant Name',
-                          labelStyle:
-                              TextStyle(fontSize: 20.0, color: Colors.red),
-                          hintText: 'For eg, The Nutty Bunch..',
-                          hintStyle:
-                              TextStyle(color: Colors.black.withOpacity(.5))),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 4.0),
-                    child: TextField(
-                      keyboardType: TextInputType.number,
-                      onChanged: (value) {
-                        setState(() {
-                          _phone = value;
-                        });
-                      },
-                      textInputAction: TextInputAction.next,
-                      onSubmitted: (_) => FocusScope.of(context).nextFocus(),
-                      decoration: InputDecoration(
-                          border: OutlineInputBorder(),
-                          labelText: 'Contact Number',
-                          labelStyle:
-                              TextStyle(fontSize: 20.0, color: Colors.red),
-                          hintText: 'For eg, (239)-173-8951',
-                          hintStyle:
-                              TextStyle(color: Colors.black.withOpacity(.5))),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 4.0),
-                    child: TextField(
-                      keyboardType: TextInputType.text,
-                      onChanged: (value) {
-                        setState(() {
-                          _address = value;
-                        });
-                      },
-                      maxLines: 3,
-                      textInputAction: TextInputAction.next,
-                      onSubmitted: (_) => FocusScope.of(context).nextFocus(),
-                      decoration: InputDecoration(
-                          border: OutlineInputBorder(),
-                          labelText: 'Address',
-                          labelStyle:
-                              TextStyle(fontSize: 20.0, color: Colors.red),
-                          hintText: 'For eg, 2961 Wheeler Ridge Dr',
-                          hintStyle:
-                              TextStyle(color: Colors.black.withOpacity(.5))),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 4.0),
-                    child: TextField(
-                      keyboardType: TextInputType.text,
-                      onChanged: (value) {
-                        setState(() {
-                          _city = value;
-                        });
-                      },
-                      textInputAction: TextInputAction.done,
-                      decoration: InputDecoration(
-                          border: OutlineInputBorder(),
-                          labelText: 'City',
-                          labelStyle:
-                              TextStyle(fontSize: 20.0, color: Colors.red),
-                          hintText: 'For eg, Amsterdam..',
-                          hintStyle:
-                              TextStyle(color: Colors.black.withOpacity(.5))),
-                    ),
-                  ),
-                ],
+                  child: _isLoading ? CircularProgressIndicator() : null,
+                ),
               ),
             )
           ],

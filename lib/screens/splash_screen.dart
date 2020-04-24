@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:food_restaurant/models/user.dart';
 import 'package:food_restaurant/providers/user.dart';
 import 'package:food_restaurant/screens/bottom_navigation_screen.dart';
 import 'package:food_restaurant/screens/login_screen.dart';
 import 'package:food_restaurant/screens/restaurant_screen.dart';
 import 'package:food_restaurant/services/auth.dart';
+import 'package:food_restaurant/services/restaurant.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 
@@ -15,6 +17,8 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> {
   AuthService _authService = AuthService();
+  RestaurantService _restaurantService = RestaurantService();
+
   _pushToLogin(int seconds) {
     Future.delayed(Duration(seconds: seconds), () {
       Navigator.pushReplacementNamed(context, LoginScreen.id);
@@ -32,6 +36,10 @@ class _SplashScreenState extends State<SplashScreen> {
       if (currentFirebaseUser != null) {
         Provider.of<UserProvider>(context, listen: false).setCurrentUser(
             await _authService.getLoggedInUserData(currentFirebaseUser));
+
+        Provider.of<UserProvider>(context, listen: false).setCurrentRestaurant(
+            await _restaurantService
+                .getUsersRestaurant(currentFirebaseUser.uid));
 
         _pushToHome(2);
       } else {

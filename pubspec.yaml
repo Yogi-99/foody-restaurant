@@ -46,6 +46,7 @@ flutter:
     - assets/splash_screen/food_loading.json
     - assets/svgs/undraw_cooking_lyxy.svg
     - assets/svgs/chef.svg
+    - assets/svgs/indian-vegetarian-mark.svg
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
   # For details regarding adding assets from package dependencies, see

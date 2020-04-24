@@ -14,4 +14,15 @@ class Restaurant {
     this.image,
     this.phone,
   });
+
+  factory Restaurant.fromJson(Map data) {
+    return Restaurant(
+      address: data['address'],
+      city: data['city'],
+      name: data['name'],
+      image: data['image'],
+      phone: data['phone'],
+      id: data['id'],
+    );
+  }
 }

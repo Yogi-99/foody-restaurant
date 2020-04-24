@@ -7,6 +7,7 @@ import 'package:food_restaurant/providers/user.dart';
 import 'package:food_restaurant/screens/bottom_navigation_screen.dart';
 import 'package:food_restaurant/screens/registration_screen.dart';
 import 'package:flutter/services.dart';
+import 'package:food_restaurant/screens/restaurant_screen.dart';
 import 'package:food_restaurant/services/auth.dart';
 import 'package:food_restaurant/widgets/input_field.dart';
 import 'package:provider/provider.dart';
@@ -115,7 +116,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               });
                               Navigator.pushNamedAndRemoveUntil(
                                   context,
-                                  BottomNavigationScreen.id,
+                                  RestaurantScreen.id,
                                   (Route<dynamic> route) => false);
                             } else {
                               showMessage('Invalid credentials');
