@@ -5,12 +5,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:food_restaurant/models/user.dart';
+import 'package:food_restaurant/providers/user.dart';
 import 'package:food_restaurant/screens/bottom_navigation_screen.dart';
 import 'package:food_restaurant/screens/login_screen.dart';
 import 'package:food_restaurant/services/auth.dart';
+import 'package:food_restaurant/services/restaurant.dart';
 
 import 'package:food_restaurant/widgets/input_field.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 
 class RegistrationScreen extends StatefulWidget {
   static String id = 'registration_screen';
@@ -24,6 +27,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
   File _image;
   AuthService _authService = AuthService();
+  RestaurantService _restaurantService = RestaurantService();
 
   bool _isLoading = false;
 
@@ -202,6 +206,14 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                             FirebaseUser firebaseUser =
                                 await _authService.createUser(user, _image);
                             if (firebaseUser != null) {
+                              Provider.of<UserProvider>(context, listen: false)
+                                  .setCurrentUser(
+                                      await _authService.getLoggedInUserData(
+                                          firebaseUser, context));
+
+                              Provider.of<UserProvider>(context, listen: false)
+                                  .setCurrentRestaurant(await _restaurantService
+                                      .getUsersRestaurant(firebaseUser.uid));
                               setState(() {
                                 _isLoading = false;
                               });

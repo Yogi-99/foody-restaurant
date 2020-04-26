@@ -31,6 +31,7 @@ class MealListTile extends StatelessWidget {
             child: Image(
               width: 100.0,
               height: 110.0,
+              fit: BoxFit.cover,
               image: NetworkImage(
                 meal.image,
               ),
@@ -38,7 +39,7 @@ class MealListTile extends StatelessWidget {
           ),
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.all(12.0),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,

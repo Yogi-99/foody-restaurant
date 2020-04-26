@@ -24,6 +24,7 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
       _phone = 'Contact Number',
       _city = 'City',
       _imageUrl = '';
+  Restaurant restaurant;
   DatabaseService _databaseService = DatabaseService();
   User _currentUser;
   bool _isLoading = false;
@@ -57,8 +58,7 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
   }
 
   _showRestaurantInfo() {
-    Restaurant restaurant =
-        Provider.of<UserProvider>(context, listen: false).restaurant;
+    restaurant = Provider.of<UserProvider>(context, listen: false).restaurant;
     if (restaurant != null) {
       _address = restaurant.address;
       _city = restaurant.city;
@@ -109,16 +109,18 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
                 Container(
                     height: size.height * 0.35,
                     decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(.2),
-                        image: Provider.of<UserProvider>(context, listen: false)
-                                        .restaurant !=
-                                    null &&
-                                !_useImagePicker
-                            ? DecorationImage(
-                                image: NetworkImage(_imageUrl),
-                                fit: BoxFit.cover)
-                            : DecorationImage(
-                                image: FileImage(_image), fit: BoxFit.cover)),
+                      color: Colors.black.withOpacity(.2),
+                      image: Provider.of<UserProvider>(context, listen: false)
+                                      .restaurant !=
+                                  null &&
+                              !_useImagePicker
+                          ? DecorationImage(
+                              image: NetworkImage(_imageUrl), fit: BoxFit.cover)
+                          : _image == null
+                              ? null
+                              : DecorationImage(
+                                  image: FileImage(_image), fit: BoxFit.cover),
+                    ),
                     child: Center(
                       child: GestureDetector(
                           onTap: () {

@@ -54,6 +54,7 @@ class _AddMealBottomSheetState extends State<AddMealBottomSheet> {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
+
     return Stack(
       children: <Widget>[
         Container(
@@ -203,7 +204,13 @@ class _AddMealBottomSheetState extends State<AddMealBottomSheet> {
                       price: _price,
                       image: url,
                     );
-                    _restaurantService.addMeal(_currentUser, meal);
+                    int test =
+                        await _restaurantService.isMealPresent(_currentUser);
+                    if (test == 0) {
+                      _restaurantService.addFirstMeal(_currentUser, meal);
+                    } else {
+                      _restaurantService.addMeal(_currentUser, meal);
+                    }
                     setState(() {
                       _isLoading = false;
                     });

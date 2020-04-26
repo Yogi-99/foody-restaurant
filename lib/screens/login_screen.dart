@@ -9,6 +9,7 @@ import 'package:food_restaurant/screens/registration_screen.dart';
 import 'package:flutter/services.dart';
 import 'package:food_restaurant/screens/restaurant_screen.dart';
 import 'package:food_restaurant/services/auth.dart';
+import 'package:food_restaurant/services/restaurant.dart';
 import 'package:food_restaurant/widgets/input_field.dart';
 import 'package:provider/provider.dart';
 
@@ -23,6 +24,7 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _isLoading = false;
   String _email, _password;
   AuthService _authService = AuthService();
+  RestaurantService _restaurantService = RestaurantService();
 
   showMessage(String message) {
     Fluttertoast.showToast(
@@ -109,8 +111,13 @@ class _LoginScreenState extends State<LoginScreen> {
                               showMessage('Successfully logged in');
 
                               Provider.of<UserProvider>(context, listen: false)
-                                  .setCurrentUser(await _authService
-                                      .getLoggedInUserData(firebaseUser));
+                                  .setCurrentUser(
+                                      await _authService.getLoggedInUserData(
+                                          firebaseUser, context));
+
+                              Provider.of<UserProvider>(context, listen: false)
+                                  .setCurrentRestaurant(await _restaurantService
+                                      .getUsersRestaurant(firebaseUser.uid));
                               setState(() {
                                 _isLoading = false;
                               });

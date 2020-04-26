@@ -33,6 +33,14 @@ class MealScreen extends StatelessWidget {
                 color: Colors.white,
               ),
               onPressed: () {
+                _restaurantService
+                    .isMealPresent(
+                        Provider.of<UserProvider>(context, listen: false)
+                            .currentUser)
+                    .then((onValue) {
+                  print('ismeal()');
+                  print(onValue);
+                });
                 showModalBottomSheet(
                     context: context,
                     isScrollControlled: true,

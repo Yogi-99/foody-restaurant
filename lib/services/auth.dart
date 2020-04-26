@@ -3,7 +3,9 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:food_restaurant/models/user.dart';
+import 'package:food_restaurant/screens/login_screen.dart';
 import '../global/global.dart';
 
 class AuthService {
@@ -71,12 +73,20 @@ class AuthService {
     }
   }
 
-  Future<User> getLoggedInUserData(FirebaseUser firebaseUser) async {
-    DocumentSnapshot documentSnapshot =
-        await _db.collection(USERS_COLLECTION).document(firebaseUser.uid).get();
+  Future<User> getLoggedInUserData(
+      FirebaseUser firebaseUser, BuildContext context) async {
+    try {
+      DocumentSnapshot documentSnapshot = await _db
+          .collection(USERS_COLLECTION)
+          .document(firebaseUser.uid)
+          .get();
 
-    User user = User.fromJson(documentSnapshot.data);
-    return user;
+      User user = User.fromJson(documentSnapshot.data);
+      return user;
+    } catch (e) {
+      print('getLoggedInUserData(): error: ${e.toString()}');
+      Navigator.pushReplacementNamed(context, LoginScreen.id);
+    }
   }
 
   singOut() async {

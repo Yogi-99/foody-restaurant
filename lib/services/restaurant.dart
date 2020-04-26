@@ -15,7 +15,9 @@ class RestaurantService {
     DocumentSnapshot documentSnapshot =
         await _db.collection(RESTAURANT_COLLECTION).document(userId).get();
 
-    return Restaurant.fromJson(documentSnapshot.data);
+    if (documentSnapshot.data != null) {
+      return Restaurant.fromJson(documentSnapshot.data);
+    }
   }
 
   Future<List<Meal>> getMeals(User user) async {
@@ -41,8 +43,36 @@ class RestaurantService {
     print('done');
   }
 
+  Future<int> isMealPresent(User user) async {
+    List<Meal> meals = [];
+    try {
+      DocumentSnapshot documentSnapshot =
+          await _db.collection(MEALS_COLLECTION).document(user.id).get();
+
+      List dummyData = documentSnapshot.data['meals'];
+      dummyData.forEach((f) {
+        meals.add(Meal.fromJson(f));
+      });
+      print('here');
+      return meals.length;
+    } catch (e) {
+      print('getMeals(): error: ${e.toString()}');
+    }
+  }
+
   addMeal(User user, Meal meal) {
+    print('meal name: ${meal.name}');
     _db.collection(MEALS_COLLECTION).document(user.id).updateData(
+      {
+        'meals': FieldValue.arrayUnion([meal.toJson()])
+      },
+    );
+    print('done');
+  }
+
+  addFirstMeal(User user, Meal meal) {
+    print('meal name: ${meal.name}');
+    _db.collection(MEALS_COLLECTION).document(user.id).setData(
       {
         'meals': FieldValue.arrayUnion([meal.toJson()])
       },

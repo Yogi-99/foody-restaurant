@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:food_restaurant/models/restaurant.dart';
 import 'package:food_restaurant/models/user.dart';
 import 'package:food_restaurant/providers/user.dart';
 import 'package:food_restaurant/screens/bottom_navigation_screen.dart';
@@ -32,20 +33,28 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   _checkAuthState() async {
-    _authService.currentUser.then((currentFirebaseUser) async {
-      if (currentFirebaseUser != null) {
-        Provider.of<UserProvider>(context, listen: false).setCurrentUser(
-            await _authService.getLoggedInUserData(currentFirebaseUser));
+    print('check auth state entered');
+    try {
+      _authService.currentUser.then((currentFirebaseUser) async {
+        if (currentFirebaseUser != null) {
+          print(currentFirebaseUser.uid);
+          Provider.of<UserProvider>(context, listen: false).setCurrentUser(
+              await _authService.getLoggedInUserData(
+                  currentFirebaseUser, context));
 
-        Provider.of<UserProvider>(context, listen: false).setCurrentRestaurant(
-            await _restaurantService
-                .getUsersRestaurant(currentFirebaseUser.uid));
+          Provider.of<UserProvider>(context, listen: false)
+              .setCurrentRestaurant(await _restaurantService
+                  .getUsersRestaurant(currentFirebaseUser.uid));
 
-        _pushToHome(2);
-      } else {
-        _pushToLogin(2);
-      }
-    });
+          _pushToHome(2);
+        } else {
+          _pushToLogin(2);
+        }
+      });
+    } catch (e) {
+      print('authState(): error: ${e.toString()}');
+      _pushToLogin(2);
+    }
   }
 
   @override

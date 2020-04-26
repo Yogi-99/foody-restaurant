@@ -1,5 +1,3 @@
-import 'package:food_restaurant/models/restaurant.dart';
-
 class User {
   final String id;
   final String username;
